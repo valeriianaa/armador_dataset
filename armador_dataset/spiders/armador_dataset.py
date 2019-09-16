@@ -10,7 +10,7 @@ from scrapy.crawler import CrawlerProcess
 #     name = "armador_dataset"
 settings = {
                 'USER_AGENT': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',
-                'CONCURRENT_REQUESTS': 100
+                'CONCURRENT_REQUESTS': 500
             }
 
 # nombres_autores = open("authors_names.json","r")
@@ -27,7 +27,7 @@ for item in autores_ids:
 	#print("hola soy el item: " + item)
 	process = CrawlerProcess(settings)
 
-	process.crawl(AuthorArticlesACMSpider, query=str(item), author_name='Roy Williams')
+	process.crawl(AuthorArticlesACMSpider, query=str(item), author_name=["Roy Williams", "Sparsh Mittal", "Audun Josang"])
 
 
 process.start()

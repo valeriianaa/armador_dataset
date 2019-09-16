@@ -21,18 +21,20 @@ class AuthorArticlesACMSpider(scrapy.Spider):
     # getting the query from console
     def start_requests(self):   
         url = getattr(self, 'query', None)
-        author_name = getattr(self, 'author_name', None)
-        yield scrapy.Request(url, self.parse, meta={'item': author_name}) 
+        author_names = getattr(self, 'author_name', None)
+        yield scrapy.Request(url, self.parse, meta={'item': author_names}) 
 
     # parsing
     def parse(self, response):
-        author_name = str(response.meta.get('item'))
+        author_names = response.meta.get('item')
+        print("author_names " + str(author_names))
         with open('articulos_raw.json', 'w+') as archivo:
             if archivo.read() != '':    
                 self.data = json.load(archivo)
-        a_file = open('training.json')
-        training_data = str(a_file.read())
-        self.training_data = json.loads(training_data)
+        with open('training.json') as a_file:
+            training_data = str(a_file.read())
+            print('training_data: ' + str(training_data))
+            self.training_data = json.loads(training_data)
         
         #for each result
         for article in response.xpath('//div[@id="results"]/div[@class="details"]'):
@@ -62,10 +64,11 @@ class AuthorArticlesACMSpider(scrapy.Spider):
                 autores_list.append({"name": autor, 
                                     "id": id_autor
                                     })
-                if autor == author_name: #cambiar por id y no hardcodear en el principal
-                    print('autor id: ' + id_autor)
-                    id_articulo_posicion = id_articulo + '-' + str(autores.index(autor))
-                    self.training_data[autor][id_autor].append(id_articulo_posicion) 
+                for author_name in author_names:
+                    if id_autor in self.training_data[author_name]: 
+                        id_articulo_posicion = id_articulo + '-' + str(autores.index(autor))
+                        self.training_data[author_name][id_autor].append(id_articulo_posicion)
+                    #print('training_data ahora: ' + str(self.training_data)) 
                     #print('un autor:' + str(self.training_data[autor][id_autor]))
                     #if a_file.read() != '':
                        # print('holo' + training_data)    
@@ -111,14 +114,14 @@ class AuthorArticlesACMSpider(scrapy.Spider):
             #     raise CloseSpider('enough_articles')
 
 
-        paginations = response.xpath('//div[@id="results"]/div[@class="pagelogic"]')
-        print('pagination ' + str(paginations))
+        paginations = response.xpath('//div[@id="results"]/div[@id="pagelogic"]')
 
         next_page = paginations.xpath('span[a='+ str(self.numpag) +']//@href').extract_first()
-        print('paginaaaa '+ str(next_page))
         
         if next_page is not None:
-            yield response.follow(next_page, callback=self.parse)
+            with open('training.json', 'w+') as a_file:
+                json.dump(self.training_data, a_file)
+            yield response.follow(next_page, callback=self.parse, meta={'item': author_names})
             self.numpag += 1
         else:
             #self.data = self.data + self.articles
