@@ -38,27 +38,27 @@ def count_in_nested_json(json_file):
 try:
 	nombres_autores = open("authors_names.json","r")
 	array_autores = json.load(nombres_autores)
-	for item in array_autores:
-		process = CrawlerProcess(settings_for_namesakes)
+	# for item in array_autores:
+	# 	process = CrawlerProcess(settings_for_namesakes)
 
-		process.crawl(ArticlesACMSpider, query=str(item))
+	# 	process.crawl(ArticlesACMSpider, query=str(item))
 
-	# archivo = open("namesakes.txt").read()[:-1]
-	# autores_ids = archivo.split(",")
+	archivo = open("namesakes.txt").read()[:-1]
+	autores_ids = archivo.split(",")
 
-	# process = CrawlerProcess(settings_for_articles)
-	# for item in autores_ids:
-	# #testing
-	# 	process.crawl(AuthorArticlesACMSpider, query=str(item), author_name=array_autores)
+	process = CrawlerProcess(settings_for_articles)
+	for item in autores_ids:
+	#testing
+		process.crawl(AuthorArticlesACMSpider, query=str(item), author_name=array_autores)
 
 	#process1.start()
 	process.start()
 except twisted.internet.error.ConnectionLost():
 	print('error de conexion. intentar de vuelta')
 
-# with open('articulos_raw.json', 'r') as archivo:
-# 	articulos = json.loads(archivo.read())
-# 	print('cantidad total de articulos: ' + str(len(articulos.keys())))
-# 	# print('cantidad training: '+ str(count_in_nested_json('training.json')))
+with open('articulos_raw.json', 'r') as archivo:
+ 	articulos = json.loads(archivo.read())
+ 	print('cantidad total de articulos: ' + str(len(articulos.keys())))
+ 	print('cantidad training: '+ str(count_in_nested_json('training.json')))
 # 	print('cantidad testing: ' + str(count_in_nested_json('testing.json')))
 
