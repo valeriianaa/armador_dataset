@@ -4,6 +4,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.exceptions import CloseSpider
 
 import json
+import os
 
 class ArticlesACMSpider(scrapy.Spider):
     namesakes_count = 0
@@ -11,20 +12,11 @@ class ArticlesACMSpider(scrapy.Spider):
     name = "namesakes_acm"
     namesakes = {}
     author_name = {}
-
-    #rules = {
-    # Rule(LinkExtractor(allow =(), restrict_xpaths = ('//h2[contains(@class,"item__title")]/a')), callback = 'parse', follow = False)
-		#Rule(LinkExtractor(allow = (), restrict_xpaths = ('//*[(@id = "gs_n")]//a//b')))
-    #}
-    
     # getting the query from console
     def start_requests(self):
-        with open('training.json', 'w+') as archivo:
-            if archivo.read() != '':    
-                self.data = json.load(archivo)
         url_prefix = 'https://dl.acm.org/results.cfm?query=persons.authors.personName:(%252B'
         url_middle = '%20%252B'
-        url_suffix = ')&within=owners.owner=HOSTED&filtered=&dte=&bfr='
+        url_suffix = ')&within=owners.owner=GUIDE&filtered=&dte=&bfr='
         query = getattr(self, 'query', None)
         #query = 'outliers'
         if query is not None:
@@ -46,11 +38,15 @@ class ArticlesACMSpider(scrapy.Spider):
     def parse(self, response):
         query = str(response.meta.get('hero_item'))
         #raise CloseSpider('enough_articles')
-
+        if(os.path.isfile('testing.json')):
+            with open('testing.json', 'r') as archivo: #TRAINING/TESTING
+                data = str(archivo.read())
+                self.namesakes = json.loads(data)
+        else:
+            self.file = open('testing.json', 'x') #TRAINING/TESTING
         author_ids = []
         self.namesakes[query] = {}
         for article in response.xpath('//div[@id="results"]/div[@class="details"]'):
-            
             aNamesake = {}
             
             #authors list of an article
@@ -80,24 +76,21 @@ class ArticlesACMSpider(scrapy.Spider):
                     yield aNamesake
                     with open('namesakes.txt', 'a+') as f:  # writing JSON object
                         f.write(aNamesake + ",")
-                
-            # self.namesakes_count += 1
-            # if self.namesakes_count >= 10:
-            #     print(json.dumps(self.namesakes))
-            #     raise CloseSpider('enough_authors')
+
 
         paginations = response.xpath('//div[@id="results"]/div[@class="pagelogic"]')
 
         next_page = paginations.xpath('span[a='+ str(self.numpag) +']//@href').extract_first()
         
+        if 'None' in self.namesakes:
+            self.namesakes.pop('None')
+        with open('testing.json', 'w+') as f:  #TRAINING/TESTING
+            json.dump(self.namesakes,f)
+
         if next_page is not None:
             yield response.follow(next_page, callback=self.parse)
             self.numpag += 1
         else:
-            if 'None' in self.namesakes:
-                self.namesakes.pop('None')
-            with open('training.json', 'w+') as f:  # writing JSON object
-                json.dump(self.namesakes,f)
             raise CloseSpider()
 
 
