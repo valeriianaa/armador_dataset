@@ -31,7 +31,7 @@ class AuthorArticlesACMSpider(scrapy.Spider):
                 self.articles = json.loads(articles)
         else:
             self.file = open('articulos_raw.json', 'x')
-        with open('testing.json') as a_file: #TRAINING/TESTING
+        with open('training.json') as a_file: #TRAINING/TESTING
             training_data = str(a_file.read())
             self.training_data = json.loads(training_data)
         
@@ -100,7 +100,7 @@ class AuthorArticlesACMSpider(scrapy.Spider):
         next_page = paginations.xpath('span[a='+ str(self.numpag) +']//@href').extract_first()
         print('next_page ' + str(next_page))
         
-        with open('testing.json', 'w') as a_file: #TRAINING/TESTING
+        with open('training.json', 'w') as a_file: #TRAINING/TESTING
             json.dump(self.training_data, a_file)
         with open('articulos_raw.json', 'w') as f:  # writing JSON object
             json.dump(self.articles,f)
