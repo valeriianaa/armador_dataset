@@ -24,7 +24,7 @@ class AuthorArticlesACMSpider(scrapy.Spider):
     # parsing
     def parse(self, response):
         author_names = response.meta.get('item')
-        print("author_names " + str(author_names))
+        #print("author_names " + str(author_names))
         if(os.path.isfile('articulos_raw.json')):
             with open('articulos_raw.json', 'r+') as archivo:
                 articles = str(archivo.read())
@@ -98,7 +98,7 @@ class AuthorArticlesACMSpider(scrapy.Spider):
         paginations = response.xpath('//div[@id="results"]/div[@id="pagelogic"]')
 
         next_page = paginations.xpath('span[a='+ str(self.numpag) +']//@href').extract_first()
-        print('next_page ' + str(next_page))
+        #print('next_page ' + str(next_page))
         
         with open('training.json', 'w') as a_file: #TRAINING/TESTING
             json.dump(self.training_data, a_file)
