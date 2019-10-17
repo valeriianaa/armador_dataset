@@ -38,12 +38,12 @@ class ArticlesACMSpider(scrapy.Spider):
     def parse(self, response):
         query = str(response.meta.get('hero_item'))
         #raise CloseSpider('enough_articles')
-        if(os.path.isfile('training.json')):#TRAINING/TESTING
-            with open('training.json', 'r') as archivo: #TRAINING/TESTING
+        if(os.path.isfile('testing.json')):#TRAINING/TESTING
+            with open('testing.json', 'r') as archivo: #TRAINING/TESTING
                 data = str(archivo.read())
                 self.namesakes = json.loads(data)
         else:
-            self.file = open('training.json', 'x') #TRAINING/TESTING
+            self.file = open('testing.json', 'x') #TRAINING/TESTING
         author_ids = []
         self.namesakes[query] = {}
         for article in response.xpath('//div[@id="results"]/div[@class="details"]'):
@@ -84,7 +84,7 @@ class ArticlesACMSpider(scrapy.Spider):
         
         if 'None' in self.namesakes:
             self.namesakes.pop('None')
-        with open('training.json', 'w+') as f:  #TRAINING/TESTING
+        with open('testing.json', 'w+') as f:  #TRAINING/TESTING
             json.dump(self.namesakes,f)
 
         if next_page is not None:
