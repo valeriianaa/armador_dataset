@@ -51,7 +51,7 @@ try:
     #testing
         process.crawl(AuthorArticlesACMSpider, query=str(item), author_name=array_autores)
 
-    #process1.start()
+    # #process1.start()
     process.start()
 except twisted.internet.error.ConnectionLost():
     print('error de conexion. intentar de vuelta')
@@ -60,5 +60,5 @@ with open('articulos_raw.json', 'r') as archivo:
     articulos = json.loads(archivo.read())
     print('cantidad total de articulos: ' + str(len(articulos.keys())))
     print('cantidad training: '+ str(count_in_nested_json('training.json')))
- #   print('cantidad testing: ' + str(count_in_nested_json('testing.json')))
+    print('cantidad testing: ' + str(count_in_nested_json('testing.json')))
 
